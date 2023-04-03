@@ -22,6 +22,14 @@ cd app
 python -m uvicorn main:app --reload
 ```
 
+
+send request to http://127.0.0.1:8000/text2video with transcript in the body
+
+``
+curl --location --request POST 'http://127.0.0.1:8000/text2video' \
+--header 'Content-Type: text/plain' \
+--data-raw 'transcript of a video here the output will be a video but for a start you see this text'
+``
 </details>
 
 <details><summary><b>Dokrize</b></summary>
