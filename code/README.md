@@ -8,9 +8,17 @@
 
 <details><summary><b>Setup locally</b></summary>
 
-First create a secrets file called "appsettings.secrets.json" in the app>app>secrets folder.
+First  instal Gentele containter
+``
+docker pull lowerquality/gentle
 
-Look at the [example.appsettings.secrets.json](./app/app/secrets/example.appsettings.secrets.json) file to see which secret variables are required.
+
+docker run -p 8765:8765 Gentel
+
+``
+More info on [gentel] (https://hub.docker.com/r/lowerquality/gentle)
+
+
 
 To run the app open a new terminal and enter the following:
 ``` shell
@@ -30,6 +38,7 @@ curl --location --request POST 'http://127.0.0.1:8000/text2video' \
 --header 'Content-Type: text/plain' \
 --data-raw 'transcript of a video here the output will be a video but for a start you see this text'
 ``
+you can also use postman :)
 </details>
 
 <details><summary><b>Dokrize</b></summary>
