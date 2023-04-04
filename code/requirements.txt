@@ -3,4 +3,3 @@ uvicorn
 starlette
 requests
 pydub
-AudioSegment
