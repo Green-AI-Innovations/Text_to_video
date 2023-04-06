@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 from starlette.middleware.cors import CORSMiddleware
 from controller.phonemesController import router as phonemesRouter
+from  controller.schedulerController import router as schedulerRouter
 
 
 app = FastAPI(
@@ -21,6 +22,6 @@ def get_request():
     return PlainTextResponse("Healthy")
 
 
-routes=[phonemesRouter]
+routes=[phonemesRouter,schedulerRouter]
 for route in routes:
   app.include_router(route)

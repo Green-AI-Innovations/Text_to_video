@@ -21,7 +21,7 @@ async def create_phonemes(request: Request, mp3Audio: UploadFile = File(...), te
     phonemes = get_phonemes(mp3Audio, textFile)
 
     # Return the phonemes
-    return {"phonemes": phonemes}
+    return phonemes
 
 
 import argparse

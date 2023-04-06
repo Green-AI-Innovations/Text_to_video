@@ -3,6 +3,7 @@ from flask import Flask, request
 import requests
 from pydub import AudioSegment
 import os
+import json
 
 
 
@@ -18,11 +19,11 @@ def get_phonemes(mp3_audio, text_file):
 
     # Send the HTTP POST request to the external API
     response = requests.post(url, files=files)
-
+    json_response = json.loads(response.text)
     # Save the response to a file
     # with open('temporary/phonemes.txt', 'rw') as f:
     #     f.write(response.text)
 
     # Return the response from the external API
-    return response.text
+    return json_response
 
