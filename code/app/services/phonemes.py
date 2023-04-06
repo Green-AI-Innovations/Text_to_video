@@ -13,9 +13,8 @@ def get_phonemes(mp3_audio, text_file):
     url = 'http://localhost:8765/transcriptions?async=false'
 
     # Set the files and data for the HTTP POST request
-    files = {'audio': (mp3_audio.filename, mp3_audio.stream),
-             'transcript': (text_file.filename, text_file.stream)}
-
+    files = {'audio': ('example.mp3', mp3_audio),
+             'transcript': ('example.txt', text_file)}
 
     # Send the HTTP POST request to the external API
     response = requests.post(url, files=files)

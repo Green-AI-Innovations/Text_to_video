@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi import Request
+from fastapi import Request, File, UploadFile
 from services.phonemes import get_phonemes
 
 
@@ -11,12 +11,13 @@ router = APIRouter(
 
 
 @router.post('/phonemes')
-def create_phonemes(request: Request):
-    mp3Audio = request.files['mp3Audio']
-    textFile = request.files['textFile']
+async def create_phonemes(request: Request, mp3Audio: UploadFile = File(...), textFile: UploadFile = File(...)):
+    # execution time is 15.12s
+    mp3Audio = await mp3Audio.read()
+    textFile = await textFile.read()
 
-    # Do some processing with mp3Audio and textFile to generate the text output
-    phonemes=get_phonemes(mp3Audio,textFile)
+    # Do some processing with contents1 and contents2 to generate the text output
+    phonemes = get_phonemes(mp3Audio, textFile)
 
     # Return the phonemes
-    return phonemes
+    return {"phonemes": phonemes}
