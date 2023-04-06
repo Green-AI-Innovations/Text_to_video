@@ -24,10 +24,6 @@ async def create_phonemes(request: Request, mp3Audio: UploadFile = File(...), te
     return phonemes
 
 
-import argparse
-import os.path
-
-
 def removeTags(script):
   TO_REMOVE = ["[","]","/"]
 

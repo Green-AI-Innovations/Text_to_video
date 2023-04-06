@@ -1,10 +1,9 @@
-import argparse
 import os.path
 import json
 import numpy as np
 import random
 
-
+# Creat global varibiles
 global strings
 global pose
 global prevPose
