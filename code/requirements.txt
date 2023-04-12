@@ -4,3 +4,6 @@ starlette
 requests
 pydub
 python-multipart
+pygame
+numpy
+Pillow
