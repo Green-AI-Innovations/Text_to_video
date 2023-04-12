@@ -1,0 +1,9 @@
+uvicorn
+fastapi[all]
+fairseq
+huggingface_hub
+g2p_en
+pydantic
+IPython
+torchaudio
+tensorboardX
