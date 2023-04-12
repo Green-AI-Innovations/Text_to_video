@@ -34,7 +34,7 @@ def pickNewPose(t):
     strings[3] += (str.format('{0:.3f}', t)+",pose,"+str(pose)+"\n")
     prevPhoneme = "na"
 
-def scheduler(transcriptFile,phonemesFile):
+def scheduler(transcriptFile,phonemesFile,filename):
 
 
     global pose
@@ -164,7 +164,7 @@ def scheduler(transcriptFile,phonemesFile):
                 addPhoneme(truePhone, timeAt-phone["duration"])
         OS_IndexAt = OS_nextIndex
 
-    f = open("services/temporary/scheduleTable.csv","w+")
+    f = open("services/temporary/"+filename+"_schedule.csv","w+")
 
     for i in range(len(strings)):
         f.write(strings[i])
@@ -173,7 +173,7 @@ def scheduler(transcriptFile,phonemesFile):
     f.flush()
     f.close()
     print(f"Done creating schedule for {INPUT_FILE}.")
-    csfFile = open("services/temporary/scheduleTable.csv","r")
+    csfFile = open("services/temporary/"+filename+"_schedule.csv","r")
     content = csfFile.read()
     csfFile.close()
     return content

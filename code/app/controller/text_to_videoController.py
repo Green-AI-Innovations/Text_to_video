@@ -6,6 +6,7 @@ from fastapi import Request, File, UploadFile
 from services.lazykhschduler import scheduler
 import json
 import subprocess
+import cv2
 
 
 from services.gentelPhonemes import get_phonemes
@@ -24,8 +25,8 @@ length = 12
 
 
 
-@router.post('/scheduler')
-async def schedule_phonemes(transcript: UploadFile = File(...)):
+@router.post('/textToVideo')
+async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFile = File(...),classfiedText: UploadFile = File(...) ):
 # TODO check where each fie is saved
     randomeFilename=creat_randome_name()
 
@@ -35,13 +36,20 @@ async def schedule_phonemes(transcript: UploadFile = File(...)):
     transcript = removeTags(transcript)
 
     # get sound
-    sound=0
+    sound= await sound.read()
 
     # get phonemes
-    phonemes = get_phonemes(sound, transcript)
+    phonemes = get_phonemes(transcript,sound,randomeFilename)
 
     # Call the scheduler 
-    jsonFile= scheduler(transcript,phonemes)
+    jsonFile= scheduler(transcript,phonemes,randomeFilename)
+    
+
+    # get classfied text TODO
+    classfiedText = await classfiedText.read()
+    classfiedText = classfiedText.decode('utf-8')
+    with open(randomeFilename+'.txt', 'w') as file:
+        file.write(classfiedText)
 
 
     # draw frames
@@ -54,19 +62,19 @@ async def schedule_phonemes(transcript: UploadFile = File(...)):
     finsh_video(randomeFilename, keep_frames)
 
 
+    # read video from file
+    video = cv2.VideoCapture('temporary/'+randomeFilename +'_final.mp4')
 
-    return  "read video and return it"
+    return  video
 
 
-def draw_frames(scheduler_file_name,classfied_emotion_file_name, use_billboards, jiggly_transitions):
+def draw_frames(file_name, use_billboards, jiggly_transitions):
     # input_file: scheduler csv and classfied emotion text should be the same name
     command = [
         "python3",
         "text_to_video/lazykh/videoDrawer.py",
-        "--scheduler_file",
-        scheduler_file_name,
-        "--classfied_emotion_file",
-        classfied_emotion_file_name,
+        "--input_file",
+        file_name,
         "--use_billboards",
         use_billboards,
         "--jiggly_transitions",
