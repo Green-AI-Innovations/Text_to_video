@@ -48,9 +48,9 @@ parser = argparse.ArgumentParser(description='blah')
 parser.add_argument('--input_file', type=str,  help='the script')
 args = parser.parse_args()
 INPUT_FILE = args.input_file
-B_FOLDER = INPUT_FILE+"_billboards"
+B_FOLDER ="services/temporary"+INPUT_FILE+"_billboards"
 
-f = open(INPUT_FILE+".txt","r+")
+f = open("services/temporary"+INPUT_FILE+".txt","r+")
 lines = list(filter(None, f.read().split("\n"))) # Filter out empty lines, since those won't need drawings.
 
 f.close()

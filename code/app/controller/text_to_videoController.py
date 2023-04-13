@@ -1,13 +1,20 @@
 import random
 import string
+
+
 import os
 from fastapi import APIRouter
-from fastapi import Request, File, UploadFile
+from fastapi import  File, UploadFile
 from services.lazykhschduler import scheduler
 import json
 import subprocess
+import io
 import cv2
+import numpy as np
+from fastapi import FastAPI, Response
+from pydub import AudioSegment
 
+from pydub.exceptions import CouldntEncodeError
 
 from services.gentelPhonemes import get_phonemes
 
@@ -21,7 +28,7 @@ router = APIRouter(
 # Define the length of the random string
 length = 12
 
-
+import tempfile
 
 
 
@@ -34,45 +41,86 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
     transcript = await transcript.read()
     transcript = transcript.decode('utf-8')
     transcript = removeTags(transcript)
+    print('transcript')
+
 
     # get sound
-    sound= await sound.read()
+    # Save audio file
+    
+    sound = await sound.read()
+
+    path = "services/temporary/"
+
+
+    save_audio(sound, path, randomeFilename)
+    print('blah')
 
     # get phonemes
-    phonemes = get_phonemes(transcript,sound,randomeFilename)
+    phonemes = get_phonemes(sound,transcript,randomeFilename)
+    print('phonemes')
+    phonemes = json.dumps(phonemes)
+
 
     # Call the scheduler 
     jsonFile= scheduler(transcript,phonemes,randomeFilename)
-    
+    print('jsonFile')
+
 
     # get classfied text TODO
     classfiedText = await classfiedText.read()
     classfiedText = classfiedText.decode('utf-8')
-    with open(randomeFilename+'.txt', 'w') as file:
+    with open("services/temporary/"+randomeFilename+'.txt', 'w') as file:
         file.write(classfiedText)
-
+    print('classfied text')
 
     # draw frames
-    use_billboards=False
-    jiggly_transitions=False
-    draw_frames(randomeFilename,randomeFilename, use_billboards, jiggly_transitions)
+    use_billboards="False"
+    jiggly_transitions="False"
+    draw_frames(randomeFilename, use_billboards, jiggly_transitions)
+    print('draw frames')
 
     # finish the video and save it in the temprory folder
-    keep_frames=False
-    finsh_video(randomeFilename, keep_frames)
+    keep_frames="False"
+    finish_video(randomeFilename, keep_frames)
+    print('finshed video')
 
+    video_path = 'services/temporary/'+randomeFilename+'_final.mp4'
+    
+    # # Read the video file
+    # video = cv2.VideoCapture(io.BytesIO(video_path))
 
-    # read video from file
-    video = cv2.VideoCapture('temporary/'+randomeFilename +'_final.mp4')
+    # # Create a response object
+    # response = Response(content_type="multipart/x-mixed-replace; boundary=frame")
 
-    return  video
+    # # Process the video frame by frame
+    # while True:
+    #     # Read a frame from the video
+    #     ret, frame = video.read()
+
+    #     if not ret:
+    #         break
+
+    #     # Convert the frame to JPEG format
+    #     ret, buffer = cv2.imencode('.jpg', frame)
+    #     frame = buffer.tobytes()
+
+    #     # Add the frame to the response
+    #     response.body = (
+    #         b'--frame\r\n'
+    #         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
+    #     )
+
+    #     # Yield the response to the client
+    #     yield response
+    path='services/temporary'
+    delete_files_with_prefix(path,randomeFilename)
 
 
 def draw_frames(file_name, use_billboards, jiggly_transitions):
     # input_file: scheduler csv and classfied emotion text should be the same name
     command = [
         "python3",
-        "text_to_video/lazykh/videoDrawer.py",
+        "services/lazykhVideoDrawer.py",
         "--input_file",
         file_name,
         "--use_billboards",
@@ -97,10 +145,10 @@ def creat_randome_name():
     return filename
 
 
-def finsh_video(input_file, keep_frames):
+def finish_video(input_file, keep_frames):
     command = [
         "python3",
-        "text_to_video/lazykh/videoFinisher.py",
+        "services/lazykhVideoFinisher.py",
         "--input_file",
         input_file,
         "--keep_frames",
@@ -133,12 +181,22 @@ def removeTags(script):
   return newScript
 
 
-def deleteAllFiles(folder):
  
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
+def delete_files_with_prefix(folder_path, prefix):
+    """
+    Deletes all files in a folder that start with a given prefix and end with either ".csv" or ".json".
+    """
+    for filename in os.listdir(folder_path):
+        if filename.startswith(prefix) and (filename.endswith('.csv') or filename.endswith('.json')):
+            os.remove(os.path.join(folder_path, filename))
+import pydub
 
-    try:
-        os.rmdir(folder)
-    except Exception as e:
-        print('Failed to delete %s. Reason: %s' % (folder, e))
+import wave
+
+def save_audio(sound, path, name):
+    # Open a new wave file with the specified parameters
+    with wave.open(f"{path}/{name}.wav", "wb") as output_file:
+        output_file.setnchannels(1)  # Mono
+        output_file.setsampwidth(2)  # 2 bytes per sample
+        output_file.setframerate(44100)  # 44.1 kHz sample rate
+        output_file.writeframes(sound)

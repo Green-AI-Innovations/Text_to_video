@@ -1,7 +1,6 @@
 #  This class will take transcript and  audio and return the phonemes
 from flask import Flask, request
 import requests
-from pydub import AudioSegment
 import os
 import json
 
@@ -23,6 +22,7 @@ def get_phonemes(mp3_audio, text_file,filename):
     # Save the response to a file
     with open('services/temporary/'+filename+'.json', 'w') as f:
         f.write(response.text)
+    print('phonemes2')
 
     # Return the response from the external API
     return json_response

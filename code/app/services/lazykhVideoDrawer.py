@@ -5,7 +5,7 @@ import numpy as np
 import random
 from PIL import Image, ImageDraw
 import math
-from services.utils import getFilenameOfLine
+from utils import getFilenameOfLine
 import shutil
 
 FRAME_START_RENDER_AT  = 0
@@ -221,7 +221,7 @@ USE_BILLBOARDS = (args.use_billboards == "T")
 ENABLE_JIGGLING = (args.jiggly_transitions == "T")
 ENABLE_FRAME_CACHING = (args.frame_caching != "F")
 
-f = open(INPUT_FILE+"_schedule.csv","r+")
+f = open("services/temporary/"+INPUT_FILE+"_schedule.csv","r+")
 scheduleLines = f.read().split("\nSECTION\n")
 f.close()
 
@@ -250,14 +250,14 @@ phonemesPerFrame = np.zeros(FRAME_COUNT,dtype='int32')
 for i in range(len(phonemeTimeline)-1):
     setPhoneme(i)
 
-f = open(INPUT_FILE+".txt","r+")
+f = open("services/temporary/"+INPUT_FILE+".txt","r+")
 origScript = f.read().split("\n")
 f.close()
 #while "" in origStr:
 #    origStr.remove("")
 
 
-f = open("code/mouthCoordinates.csv","r+")
+f = open("mouthCoordinates/mouthCoordinates.csv","r+")
 mouthCoordinatesStr = f.read().split("\n")
 f.close()
 MOUTH_COOR = np.zeros((POSE_COUNT,5))
