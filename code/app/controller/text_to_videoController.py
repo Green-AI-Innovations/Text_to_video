@@ -1,21 +1,14 @@
 import random
 import string
-
-
 import os
 from fastapi import APIRouter
 from fastapi import  File, UploadFile
 from services.lazykhschduler import scheduler
 import json
 import subprocess
-
-import numpy as np
-from fastapi import FastAPI, Response
-from services.lazykhVideoFinisher import create_video_with_audio
-
-from pydub.exceptions import CouldntEncodeError
-
+from services.lazykhVideoFinisher import Videofinisher
 from services.gentelPhonemes import get_phonemes
+
 
 
 router = APIRouter(
@@ -27,10 +20,20 @@ router = APIRouter(
 # Define the length of the random string
 length = 12
 
-import tempfile
+
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"Function {func.__name__} took {end_time - start_time} seconds to execute.")
+        return result
+    return wrapper
 
 
 
+@timer
 @router.post('/textToVideo')
 async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFile = File(...),classfiedText: UploadFile = File(...) ):
 # TODO check where each fie is saved
@@ -45,14 +48,11 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
 
     # get sound
     # Save audio file
-    
     sound = await sound.read()
-
     path = "services/temporary/"
-
-
     save_audio(sound, path, randomeFilename)
     print('blah')
+
 
     # get phonemes
     phonemes = get_phonemes(sound,transcript,randomeFilename)
@@ -82,12 +82,13 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
 
 
     
-    print('finshed video')
+    # print('finshed video')
 
     audio_path = 'services/temporary/'+randomeFilename+'.wav'
-    output_path = 'services/temporary/'+randomeFilename+'_final.avi '
+    output_path = 'services/temporary/'+randomeFilename+'_final.mp4'
     frames_path=randomeFilename+'_frames'
-    create_video_with_audio(frames_path, audio_path, output_path)
+    # create_video_with_audio(frames_path, audio_path, output_path)
+    Videofinisher(frames_path,audio_path,output_path)
     print('created')
 
     # # Read the video file
@@ -121,10 +122,6 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
 
 
 def draw_frames(file_name, use_billboards, jiggly_transitions):
-    import os
-
-    ls = os.listdir()
-    print(ls)
     command = [
         "python",
         "services/lazykhVideoDrawer.py",
@@ -154,17 +151,6 @@ def creat_randome_name():
 
     return filename
 
-
-def finish_video(input_file, keep_frames):
-    command = [
-        "python",
-        "services/lazykhVideoFinisher.py",
-        "--input_file",
-        input_file,
-        "--keep_frames",
-        keep_frames,
-    ]
-    subprocess.run(command)
 
 
 
@@ -196,12 +182,9 @@ def delete_files_with_prefix(folder_path, prefix):
     """
     Deletes all files in a folder that start with a given prefix and end with either ".csv" or ".json".
     """
-    path = os.path.join(prefix+'_frames')
-    os.remove(path)
     for filename in os.listdir(folder_path):
-        if filename.startswith(prefix) and (filename.endswith('.csv') or filename.endswith('.json')or filename.endswith('.wav')):
+        if filename.startswith("text_") or filename.startswith(prefix):
             os.remove(os.path.join(folder_path, filename))
-
 
 import pydub
 
@@ -209,8 +192,12 @@ import wave
 
 def save_audio(sound, path, name):
     # Open a new wave file with the specified parameters
-    with wave.open(f"{path}/{name}.wav", "wb") as output_file:
+    with wave.open(f"{path}{name}.wav", "wb") as output_file:
         output_file.setnchannels(1)  # Mono
         output_file.setsampwidth(2)  # 2 bytes per sample
         output_file.setframerate(44100)  # 44.1 kHz sample rate
         output_file.writeframes(sound)
+
+
+import time
+
