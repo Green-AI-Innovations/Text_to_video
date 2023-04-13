@@ -8,11 +8,10 @@ from fastapi import  File, UploadFile
 from services.lazykhschduler import scheduler
 import json
 import subprocess
-import io
-import cv2
+
 import numpy as np
 from fastapi import FastAPI, Response
-from pydub import AudioSegment
+from services.lazykhVideoFinisher import create_video_with_audio
 
 from pydub.exceptions import CouldntEncodeError
 
@@ -64,7 +63,7 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
     # Call the scheduler 
     jsonFile= scheduler(transcript,phonemes,randomeFilename)
     print('jsonFile')
-
+    
 
     # get classfied text TODO
     classfiedText = await classfiedText.read()
@@ -80,12 +79,17 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
     print('draw frames')
 
     # finish the video and save it in the temprory folder
-    keep_frames="False"
-    finish_video(randomeFilename, keep_frames)
+
+
+    
     print('finshed video')
 
-    video_path = 'services/temporary/'+randomeFilename+'_final.mp4'
-    
+    audio_path = 'services/temporary/'+randomeFilename+'.wav'
+    output_path = 'services/temporary/'+randomeFilename+'_final.avi '
+    frames_path=randomeFilename+'_frames'
+    create_video_with_audio(frames_path, audio_path, output_path)
+    print('created')
+
     # # Read the video file
     # video = cv2.VideoCapture(io.BytesIO(video_path))
 
@@ -112,14 +116,17 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
 
     #     # Yield the response to the client
     #     yield response
-    path='services/temporary'
-    delete_files_with_prefix(path,randomeFilename)
+    # path='services/temporary/'
+    # delete_files_with_prefix(path,randomeFilename)
 
 
 def draw_frames(file_name, use_billboards, jiggly_transitions):
-    # input_file: scheduler csv and classfied emotion text should be the same name
+    import os
+
+    ls = os.listdir()
+    print(ls)
     command = [
-        "python3",
+        "python",
         "services/lazykhVideoDrawer.py",
         "--input_file",
         file_name,
@@ -128,7 +135,10 @@ def draw_frames(file_name, use_billboards, jiggly_transitions):
         "--jiggly_transitions",
         jiggly_transitions,
     ]
-    subprocess.run(command)
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error drawer: {e}")
 
 def creat_randome_name():
     while True:
@@ -147,7 +157,7 @@ def creat_randome_name():
 
 def finish_video(input_file, keep_frames):
     command = [
-        "python3",
+        "python",
         "services/lazykhVideoFinisher.py",
         "--input_file",
         input_file,
@@ -186,9 +196,13 @@ def delete_files_with_prefix(folder_path, prefix):
     """
     Deletes all files in a folder that start with a given prefix and end with either ".csv" or ".json".
     """
+    path = os.path.join(prefix+'_frames')
+    os.remove(path)
     for filename in os.listdir(folder_path):
-        if filename.startswith(prefix) and (filename.endswith('.csv') or filename.endswith('.json')):
+        if filename.startswith(prefix) and (filename.endswith('.csv') or filename.endswith('.json')or filename.endswith('.wav')):
             os.remove(os.path.join(folder_path, filename))
+
+
 import pydub
 
 import wave

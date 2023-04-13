@@ -1,5 +1,5 @@
 #  This class will take transcript and  audio and return the phonemes
-from flask import Flask, request
+
 import requests
 import os
 import json

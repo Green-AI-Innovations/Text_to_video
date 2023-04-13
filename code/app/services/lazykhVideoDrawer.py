@@ -121,11 +121,11 @@ def drawFrame(frameNum,paragraph,emotion,imageNum,pose,phoneNum,poseTimeSinceLas
     frame.paste(body,(inx-s_X,iny),body)
     if not os.path.isdir(INPUT_FILE+"_frames"):
         os.makedirs(INPUT_FILE+"_frames")
-    frame.save(INPUT_FILE+"_frames/f"+"{:06d}".format(frameNum)+".png")
+    frame.save(INPUT_FILE+"_frames/"+"{:06d}".format(frameNum)+".png")
 
 def duplicateFrame(prevFrame, thisFrame):
-    prevFrameFile = INPUT_FILE+"_frames/f"+"{:06d}".format(prevFrame)+".png"
-    thisFrameFile = INPUT_FILE+"_frames/f"+"{:06d}".format(thisFrame)+".png"
+    prevFrameFile = INPUT_FILE+"_frames/"+"{:06d}".format(prevFrame)+".png"
+    thisFrameFile = INPUT_FILE+"_frames/"+"{:06d}".format(thisFrame)+".png"
     shutil.copyfile(prevFrameFile, thisFrameFile)
 
 def infoToString(arr):
