@@ -32,7 +32,7 @@ def Videofinisher(image_folder, audio_path, video_name):
     video_clip = VideoFileClip(video_name)
     audio_clip = AudioFileClip(audio_path)
     final_clip = video_clip.set_audio(audio_clip)
-    final_clip.write_videofile(video_name.replace(".mp4", "_with_audio.mp4"), codec="mpeg4")
+    final_clip.write_videofile('sadasd.mp4', codec="libx264", bitrate="4M", audio_codec="aac", audio_bitrate="256k", ffmpeg_params=["-strict", "-2"])
 
 
 

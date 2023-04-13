@@ -8,14 +8,16 @@ import json
 import subprocess
 from services.lazykhVideoFinisher import Videofinisher
 from services.gentelPhonemes import get_phonemes
-
-
+import cv2
+from flask import Response
+import wave
 
 router = APIRouter(
     responses={404: {"description": "Not found"}},
 
 )
 
+import io
 
 # Define the length of the random string
 length = 12
@@ -78,49 +80,33 @@ async def schedule_phonemes(transcript: UploadFile = File(...), sound: UploadFil
     draw_frames(randomeFilename, use_billboards, jiggly_transitions)
     print('draw frames')
 
+
+
     # finish the video and save it in the temprory folder
-
-
-    
-    # print('finshed video')
-
     audio_path = 'services/temporary/'+randomeFilename+'.wav'
-    output_path = 'services/temporary/'+randomeFilename+'_final.mp4'
+    output_path = 'services/temporary/'+randomeFilename+'.mp4'
     frames_path=randomeFilename+'_frames'
-    # create_video_with_audio(frames_path, audio_path, output_path)
     Videofinisher(frames_path,audio_path,output_path)
     print('created')
 
-    # # Read the video file
-    # video = cv2.VideoCapture(io.BytesIO(video_path))
 
-    # # Create a response object
-    # response = Response(content_type="multipart/x-mixed-replace; boundary=frame")
 
-    # # Process the video frame by frame
-    # while True:
-    #     # Read a frame from the video
-    #     ret, frame = video.read()
-
-    #     if not ret:
-    #         break
-
-    #     # Convert the frame to JPEG format
-    #     ret, buffer = cv2.imencode('.jpg', frame)
-    #     frame = buffer.tobytes()
-
-    #     # Add the frame to the response
-    #     response.body = (
-    #         b'--frame\r\n'
-    #         b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
-    #     )
-
-    #     # Yield the response to the client
-    #     yield response
+    # Read the video file and return it to user
+    video = get_video(output_path)
     # path='services/temporary/'
-    # delete_files_with_prefix(path,randomeFilename)
+    delete_temprory_files(path,randomeFilename)
+    return video
 
 
+def get_video(path):
+    # Read the video file as binary data
+    with open(path, 'rb') as f:
+        video_data = f.read()
+
+    # Create a FastAPI response with the video data
+    response = Response(body=video_data, media_type='video/mp4')
+
+    return response
 def draw_frames(file_name, use_billboards, jiggly_transitions):
     command = [
         "python",
@@ -177,18 +163,26 @@ def removeTags(script):
   return newScript
 
 
- 
-def delete_files_with_prefix(folder_path, prefix):
+import shutil
+
+def delete_temprory_files(folder_path, prefix):
     """
     Deletes all files in a folder that start with a given prefix and end with either ".csv" or ".json".
     """
-    for filename in os.listdir(folder_path):
-        if filename.startswith("text_") or filename.startswith(prefix):
-            os.remove(os.path.join(folder_path, filename))
 
-import pydub
+    transcript=prefix+'.txt'
+    os.remove(transcript)
+    phonemes=prefix+'.json'
+    os.remove(phonemes)
 
-import wave
+    # specify the path to delete frames
+    frames=prefix+'_frames'
+    # remove the directory and all its contents
+    shutil.rmtree(frames)
+
+
+
+
 
 def save_audio(sound, path, name):
     # Open a new wave file with the specified parameters
