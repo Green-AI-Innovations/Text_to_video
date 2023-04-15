@@ -10,6 +10,7 @@ import json
 
 def get_phonemes(mp3_audio, text_file,filename):
     # Set the URL for the external API
+    # takes sound file and text file and the filename
     url = 'http://localhost:8765/transcriptions?async=false'
 
     # Set the files and data for the HTTP POST request
@@ -22,7 +23,6 @@ def get_phonemes(mp3_audio, text_file,filename):
     # Save the response to a file
     with open('services/temporary/'+filename+'.json', 'w') as f:
         f.write(response.text)
-    print('phonemes2')
 
     # Return the response from the external API
     return json_response

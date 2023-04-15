@@ -15,10 +15,10 @@ def Videofinisher(image_folder, audio_path, video_name):
     images = [img for img in os.listdir(image_folder) if img.endswith(".png")]
     frame = cv2.imread(os.path.join(image_folder, images[0]))
     height, width, layers = frame.shape
-
+    video_name_path="services/temporary/"+video_name+".mp4"
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     fps = 30
-    video = cv2.VideoWriter(video_name, fourcc, fps, (width, height))
+    video = cv2.VideoWriter(video_name_path, fourcc, fps, (width, height))
 
     for image in images:
         frame = cv2.imread(os.path.join(image_folder, image))
@@ -29,12 +29,14 @@ def Videofinisher(image_folder, audio_path, video_name):
 
 
   # Add audio to video
-    video_clip = VideoFileClip(video_name)
+    video_clip = VideoFileClip(video_name_path)
     audio_clip = AudioFileClip(audio_path)
     final_clip = video_clip.set_audio(audio_clip)
-    final_clip.write_videofile('sadasd.mp4', codec="libx264", bitrate="4M", audio_codec="aac", audio_bitrate="256k", ffmpeg_params=["-strict", "-2"])
 
 
+    final_clip.write_videofile(video_name+"_final.mp4", codec="libx264", bitrate="4M", audio_codec="aac", audio_bitrate="256k", ffmpeg_params=["-strict", "-2"])
+    
+    
 
 # def fisher(INPUT_FILE,KEEP_FRAMES):
 #     ffmpeg='ffmpeg'
