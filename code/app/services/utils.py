@@ -10,6 +10,7 @@ import os
 
 
 
+
 def timer(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -59,23 +60,48 @@ def creat_randome_name():
 
 
 
+def save_audio(audio_data, file_path, file_name):
+    """
+    Save an audio file to a specified path with a given filename.
+
+    Args:
+    - audio_data: bytes, the binary data of the audio file to be saved
+    - file_path: str, the path to the directory where the audio file should be saved
+    - file_name: str, the name of the audio file
+
+    Returns:
+    - None
+    """
+
+    # Concatenate the file path and file name to create the full file path
+    full_path = file_path + file_name+'.wav'
+
+    # Load the audio data into an AudioFileClip object
+    # Write the audio data to a file
+    with open(full_path, 'wb') as f:
+        f.write(audio_data)
 
 
 
-def save_audio(sound, path, name):
-    # Open a new wave file with the specified parameters
-    with wave.open(f"{path}{name}.wav", "wb") as output_file:
-        output_file.setnchannels(1)  # Mono
-        output_file.setsampwidth(2)  # 2 bytes per sample
-        output_file.setframerate(44100)  # 44.1 kHz sample rate
-        output_file.writeframes(sound)
-
-def delete_cach():
+def delete_cache():
     for filename in os.listdir():
-    # Check if the file ends with '_final.mp4'
+        # Check if the file ends with '_final.mp4'
         if filename.endswith('_final.mp4'):
-            # Delete the 
-            os.remove(filename)
+            file_path = os.path.join(os.getcwd(), filename)
+            try:
+                # Check if the file is in use
+                with open(file_path, 'r'):
+                    pass
+                # If not in use, delete the file
+                os.remove(file_path)
+                print(f"{filename} deleted successfully.")
+            except PermissionError:
+                print(f"{filename} is in use. Skipping deletion.")
+            except Exception as e:
+                print(f"Error deleting {filename}: {e}")
+
+
+
 
 def get_video_from_file(path):
     # Read the video file as binary data
@@ -100,7 +126,8 @@ def delete_temprory_files(folder_path, prefix):
     os.remove(folder_path+audio)
     schedule=prefix+'_schedule.csv'
     os.remove(folder_path+schedule)
-
+    video_without_sound=prefix+'.mp4'
+    os.remove(folder_path+video_without_sound)
     # specify the path to delete frames
     frames=prefix+'_frames'
     # remove the directory and all its contents

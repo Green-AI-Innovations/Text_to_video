@@ -6,7 +6,7 @@ import json
 import subprocess
 from services.lazykhVideoFinisher import Videofinisher
 from services.gentelPhonemes import get_phonemes
-from services.utils import timer, creat_randome_name, removeTags, save_audio, delete_temprory_files, get_video_from_file,delete_cach
+from services.utils import timer, creat_randome_name, removeTags, save_audio, delete_temprory_files, get_video_from_file,delete_cache
 
 
 
@@ -26,14 +26,14 @@ router = APIRouter(
 @router.post('/textToVideo')
 async def text_To_video(transcript: UploadFile = File(...), sound: UploadFile = File(...),classfiedText: UploadFile = File(...) ):
 # TODO check where each fie is saved
-    delete_cach()
+    delete_cache()
     randomeFilename=creat_randome_name()
 
     #  Read the transcript user inputed
     transcript = await transcript.read()
     transcript = transcript.decode('utf-8')
     transcript = removeTags(transcript)
-    print('transcript')
+    print('removeTags from transcript')
 
 
     # get sound
@@ -42,7 +42,7 @@ async def text_To_video(transcript: UploadFile = File(...), sound: UploadFile = 
     temp_path = "services/temporary/"
     save_audio(sound, temp_path, randomeFilename)
 
-
+    print('sound saved')
 
     # get phonemes
     phonemes = get_phonemes(sound,transcript,randomeFilename)
