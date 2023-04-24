@@ -1,8 +1,6 @@
 import argparse
 import os.path
-import json
 import numpy as np
-import random
 from PIL import Image, ImageDraw
 import math
 from utils import getFilenameOfLine

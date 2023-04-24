@@ -1,7 +1,4 @@
-#  This class will take transcript and  audio and return the phonemes
-
 import requests
-import os
 import json
 
 

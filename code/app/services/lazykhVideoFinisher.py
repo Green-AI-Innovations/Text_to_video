@@ -1,10 +1,8 @@
 import cv2
 import os
-import argparse
 import os.path
 import os
-import subprocess
-import shutil
+
 from moviepy.editor import VideoFileClip, AudioFileClip
 
 
